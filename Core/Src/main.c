@@ -90,7 +90,8 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
   GPIO_PinState SwitchHz[2];
-  uint16_t LED1_Period = 500;
+  uint16_t LED1_Period = 1000;
+  int ModeLed = 1;
   uint32_t TimeStamp = 0;
   uint32_t ButtonTimeStamp = 0;
   /* USER CODE END 2 */
@@ -102,17 +103,31 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  if(HAL_GetTick() - ButtonTimeStamp >= 100){
+	  if(HAL_GetTick() - ButtonTimeStamp >= 70){
 		  //ตอนกดเป็นlow
 		  SwitchHz[0]= HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_10);
 		  if(SwitchHz[1]== GPIO_PIN_SET && SwitchHz[0]== GPIO_PIN_RESET)
 		  {
-			  if (LED1_Period == 500)
+			  switch (ModeLed)
 			  {
-				  LED1_Period = 250;
-			  }
-			  else{
-				  LED1_Period = 500;
+			  case 1:
+				LED1_Period = 500;
+				ModeLed += 1;
+				break;
+			  case 2:
+				LED1_Period = 250;
+				ModeLed += 1;
+				break;
+			  case 3:
+				LED1_Period = 167;
+				ModeLed += 1;
+				break;
+			  case 4:
+				LED1_Period = 1000;
+				ModeLed -= 3;
+				break;
+			  default:
+				break;
 			  }
 		  }
 	  }
