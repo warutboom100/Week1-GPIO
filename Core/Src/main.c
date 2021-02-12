@@ -104,8 +104,8 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  if(HAL_GetTick() - ButtonTimeStamp >= 250){
-		  //ตอ�?�?ดเ�?�?�?low
+	  if(HAL_GetTick() - ButtonTimeStamp >= 170){
+		  ButtonTimeStamp = HAL_GetTick();
 		  SwitchHz[0]= HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_10);
 		  SwitchHz[1]= HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3);
 		  if(SwitchHz[2]== GPIO_PIN_SET && SwitchHz[0]== GPIO_PIN_RESET){
