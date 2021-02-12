@@ -89,11 +89,15 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-  GPIO_PinState SwitchHz[3];
+  GPIO_PinState SwitchHz[5];
   uint16_t LED1_Period = 1000;
-  int ModeLed = 1;
+  int ModeSpeedLed = 1;
   int ON_OFF = 1;
+  int ModeBlinkLED = 1;
+  uint16_t LED3_ON = 500;
+  uint16_t LED3_OFF = 1500;
   uint32_t TimeStamp = 0;
+  uint32_t TimeStamp3 = 0;
   uint32_t ButtonTimeStamp = 0;
   /* USER CODE END 2 */
 
@@ -104,33 +108,33 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  if(HAL_GetTick() - ButtonTimeStamp >= 170){
+	  if(HAL_GetTick() - ButtonTimeStamp >= 120){
 		  ButtonTimeStamp = HAL_GetTick();
 		  SwitchHz[0]= HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_10);
 		  SwitchHz[1]= HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3);
-		  if(SwitchHz[2]== GPIO_PIN_SET && SwitchHz[0]== GPIO_PIN_RESET){
-			  switch (ModeLed){
+		  SwitchHz[2] = HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_5);
+		  SwitchHz[3] = HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_4);
+		  if(SwitchHz[4]== GPIO_PIN_SET && SwitchHz[0]== GPIO_PIN_RESET){ //s1
+			  switch (ModeSpeedLed){
 			  case 1:
 				LED1_Period = 500;
-				ModeLed += 1;
+				ModeSpeedLed += 1;
 				break;
 			  case 2:
 				LED1_Period = 250;
-				ModeLed += 1;
+				ModeSpeedLed += 1;
 				break;
 			  case 3:
 				LED1_Period = 167;
-				ModeLed += 1;
+				ModeSpeedLed += 1;
 				break;
 			  case 4:
 				LED1_Period = 1000;
-				ModeLed -= 3;
-				break;
-			  default:
+				ModeSpeedLed -= 3;
 				break;
 			  }
 		  }
-		  if((SwitchHz[2]== GPIO_PIN_SET && SwitchHz[1]== GPIO_PIN_RESET)){
+		  if(SwitchHz[4]== GPIO_PIN_SET && SwitchHz[1]== GPIO_PIN_RESET){ //s2
 			  switch(ON_OFF){
 			  case 1:
 				  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_7, GPIO_PIN_SET);
@@ -141,13 +145,31 @@ int main(void)
 				  ON_OFF = 1;
 				  break;
 			  }
+		  }
+		  if(SwitchHz[4]== GPIO_PIN_SET && SwitchHz[2]== GPIO_PIN_RESET){ //s3
+			  switch(ModeBlinkLED){
+			  case 1:
+				  LED3_ON = 1500;
+				  LED3_OFF = 500;
+				  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_RESET);
+				  ModeBlinkLED = 2;
+				  break;
+			  case 2:
+				  LED3_ON = 500;
+				  LED3_OFF = 1500;
+				  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_RESET);
+				  ModeBlinkLED = 1;
+				  break;
+			  }
 
 		  }
 	  }
-	  SwitchHz[2] = SwitchHz[1];
-	  SwitchHz[2] = SwitchHz[0];
+	  SwitchHz[4] = SwitchHz[3];
+	  SwitchHz[4] = SwitchHz[2];
+	  SwitchHz[4] = SwitchHz[1];
+	  SwitchHz[4] = SwitchHz[0];
 	  //RUN LED //mS
-	  if(HAL_GetTick()-TimeStamp >= LED1_Period)
+	  if(HAL_GetTick()-TimeStamp >= LED1_Period) //LED 1
 	  {
 		  TimeStamp = HAL_GetTick();
 		  //Toggle_LED1
@@ -158,6 +180,18 @@ int main(void)
 		  else
 		  {
 			  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_SET);
+		  }
+	  }
+	  if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_6)== GPIO_PIN_RESET){
+		  if(HAL_GetTick()-TimeStamp3 >= LED3_ON){
+			  TimeStamp3 = HAL_GetTick();
+			  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_SET);
+		  }
+	  }
+	  if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_6)== GPIO_PIN_SET){
+		  if(HAL_GetTick()-TimeStamp3 >= LED3_OFF){
+			  TimeStamp3 = HAL_GetTick();
+			  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_RESET);
 		  }
 	  }
   }
